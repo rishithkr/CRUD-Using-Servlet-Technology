@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public class UserService {
-    private Map<Integer, User> userDB;
+    private final Map<Integer, User> userDB;
 
     public UserService(){
         userDB  = new HashMap<>();
@@ -24,9 +24,26 @@ public class UserService {
     }
 
     public List<User> getAllUsers() {
-        List<User> userList = new ArrayList<User>();
+        List<User> userList = new ArrayList<>();
         for(User user : userDB.values())
             userList.add(user);
         return userList;
+    }
+
+    public User deleteUser(Integer id) {
+        return userDB.remove(id);
+
+    }
+
+    public User updateUser(Integer id, String name, String email, String mobile) {
+        User user = new User(userDB.get(id));
+        if(name != null)
+            user.setName(name);
+        if(email != null)
+            user.setEmail(email);
+        if(mobile != null)
+            user.setMobile(mobile);
+         return userDB.replace(id,user);
+
     }
 }

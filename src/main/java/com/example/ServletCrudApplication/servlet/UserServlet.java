@@ -28,7 +28,6 @@ public class UserServlet extends HttpServlet {
                                 "   \"message\" :\"Error! No users were found\"\n" +
                                 "}"
                 );
-                return;
             }
             else{
                 httpServletResponse.setStatus(200);
@@ -48,7 +47,7 @@ public class UserServlet extends HttpServlet {
                                 "   \"message\" :\"Error! User was not found\"\n" +
                                 "}"
                 );
-                return;
+
             }
             else{
                 httpServletResponse.setStatus(200);
@@ -63,11 +62,11 @@ public class UserServlet extends HttpServlet {
     public void doPost(HttpServletRequest httpServletRequest,
                       HttpServletResponse httpServletResponse) throws IOException {
 
-        Integer id = Integer.parseInt( httpServletRequest.getParameter("id") );
+        String idInString = httpServletRequest.getParameter("id") ;
         String name = httpServletRequest.getParameter("name");
         String mobile = httpServletRequest.getParameter("mobile");
         String email = httpServletRequest.getParameter("email");
-        if(id == null || name == null || mobile == null || email == null)
+        if(idInString == null || name == null || mobile == null || email == null)
         {
             httpServletResponse.setStatus(400);
             httpServletResponse.setContentType("application/json");
@@ -76,25 +75,83 @@ public class UserServlet extends HttpServlet {
                             "   \"message\" :\"Error! Some fields were missing\"\n" +
                             "}"
             );
+            return;
         }
+        Integer id = Integer.parseInt(idInString);
         User user = new User(id, name, email, mobile);
         User createdUser = userService.createUser(user);
         httpServletResponse.setStatus(201);
         httpServletResponse.setContentType("application/json");
         httpServletResponse.getWriter().write(
-                "{\n" +
-                        "   \"message\" :\"User added successfully\"\n" +
-                        "}"
+                        "   \"message\" :\"User added successfully\"\n" + userToJson(createdUser)
+
         );
     }
 
     @Override
     public void doDelete(HttpServletRequest httpServletRequest,
-                      HttpServletResponse httpServletResponse){}
+                      HttpServletResponse httpServletResponse) throws IOException {
+        String idInString = httpServletRequest.getParameter("id");
+        if(idInString == null)
+        {
+            httpServletResponse.setStatus(400);
+            httpServletResponse.setContentType("application/json");
+            httpServletResponse.getWriter().write(
+                    "{\n" +
+                            "   \"message\" :\"Error! ID was missing\"\n" +
+                            "}"
+            );
+            return;
+        }
+        Integer id = Integer.parseInt(idInString);
+        User deletedUser = userService.deleteUser(id);
+        httpServletResponse.setStatus(201);
+        httpServletResponse.setContentType("application/json");
+        httpServletResponse.getWriter().write(
+                        "   \"message\" :\"User deleted successfully\"\n" + userToJson(deletedUser)
+        );
+    }
 
     @Override
-    public void doPatch(HttpServletRequest httpServletRequest,
-                      HttpServletResponse httpServletResponse){}
+    public void doPut(HttpServletRequest httpServletRequest,
+                      HttpServletResponse httpServletResponse) throws IOException {
+
+        String idInString = httpServletRequest.getParameter("id");
+        String name = httpServletRequest.getParameter("name");
+        String mobile = httpServletRequest.getParameter("mobile");
+        String email = httpServletRequest.getParameter("email");
+        if(idInString == null)
+        {
+            httpServletResponse.setStatus(400);
+            httpServletResponse.setContentType("application/json");
+            httpServletResponse.getWriter().write(
+                    "{\n" +
+                            "   \"message\" :\"Error! ID was missing\"\n" +
+                            "}"
+            );
+            return;
+        }
+        Integer id = Integer.parseInt(idInString);
+        User updatedUser = userService.updateUser(id, name, email, mobile);
+        if (updatedUser == null)
+        {
+            httpServletResponse.setStatus(404);
+            httpServletResponse.setContentType("application/json");
+            httpServletResponse.getWriter().write(
+                    "{\n" +
+                            "   \"message\" :\"Error! User was not found\"\n" +
+                            "}"
+            );
+        }
+        else{
+            httpServletResponse.setStatus(201);
+            httpServletResponse.setContentType("application/json");
+            httpServletResponse.getWriter().write(
+                            "   \"message\" :\"User updated successfully\"\n" + userToJson(updatedUser)
+            );
+        }
+    }
+
 
     private String userToJson(User userResp)
     {

@@ -1,7 +1,7 @@
 package com.example.ServletCrudApplication.model;
 
 public class User {
-    private Integer id;
+    private final Integer id;
     private String name;
     private String email;
     private String mobile;
@@ -13,12 +13,16 @@ public class User {
         this.mobile = mobile;
     }
 
-    public Integer getId() {
-        return id;
+    public User(User a)
+    {
+        this.id = a.id;
+        this.name = a.name;
+        this.email = a.email;
+        this.mobile = a.mobile;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public Integer getId() {
+        return id;
     }
 
     public String getName() {
